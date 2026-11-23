@@ -1,5 +1,6 @@
 from pathlib import Path
 from datetime import timedelta
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -7,9 +8,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
-
+SECRET_KEY = config('SECRET_KEY')
+DEBUG = config('DEBUG', default=False, cast=bool)
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-pflua#2=@awjhw0#@-v5(thbr-z_ys66(o^2uiq7d2!j2@tj-d'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -150,7 +151,7 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'Blog API',
     'DESCRIPTION': 'Blog API Documentation',
     'VERSION': '1.0.0',
-
+    
     'COMPONENTS': {
         'securitySchemes': {
             'BearerAuth': {
