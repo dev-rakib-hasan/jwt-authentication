@@ -3,12 +3,23 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+from drf_spectacular.utils import (
+    extend_schema,
+    OpenApiRequest,
+    OpenApiResponse
+)
 
-from serializers import(
+from .serializers import(
     RegisterSerializer,
     LoginSerializer,
 )
 # Create your views here.
+@extend_schema(
+    tags=['Register'],
+    summary="Register a new user.",
+    request=RegisterSerializer,
+    responses=RegisterSerializer,
+)
 
 @api_view(['POST'])
 def register(request):
@@ -27,6 +38,18 @@ def register(request):
         serializer.errors,
         status=status.HTTP_400_BAD_REQUEST
     )
+    
+@extend_schema(
+    tags=['Login'],
+    summary="Log in a new user.",
+    request=LoginSerializer,
+    responses={
+        200:LoginSerializer,
+        201:OpenApiResponse(description='created'),
+        400:OpenApiResponse(description='Bad Request.'),
+        401:OpenApiResponse(description='Unauthorized.')
+    }
+)
 
 @api_view(['POST'])
 def login(request):
