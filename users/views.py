@@ -1,8 +1,10 @@
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+from .models import Blog
 from drf_spectacular.utils import (
     extend_schema,
     OpenApiRequest,
@@ -12,6 +14,7 @@ from drf_spectacular.utils import (
 from .serializers import(
     RegisterSerializer,
     LoginSerializer,
+    BlogSerializer
 )
 # Create your views here.
 @extend_schema(
@@ -75,3 +78,36 @@ def login(request):
          
         return Response({'eror':'Invalid Email Or Password'},status=status.HTTP_401_UNAUTHORIZED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#====================
+# Blog Api
+#====================
+
+@extend_schema(
+    tags=['Blog'],
+    summary='create Blog',
+    description=('Retrieve all blog or New blog'),
+    request=BlogSerializer,
+    responses={
+        200:BlogSerializer(many=True),
+        201:OpenApiResponse(description='Added Successfully,.'),
+        400:OpenApiResponse(description='Validation Error')
+    },
+)
+
+@api_view(['GET','POST'])
+def blog_list_create(request):
+    if request.method == 'GET':
+        blogs = Blog.objects.all()
+        serializer = BlogSerializer(blogs, many=True)
+        return Response(serializer.data)
+    
+    if not request.user.is_authenticated:
+        return Response(
+            {'message':'Authentication Required'},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    serializer = BlogSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
