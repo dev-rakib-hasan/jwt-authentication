@@ -1,5 +1,6 @@
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -95,6 +96,7 @@ def login(request):
 )
 
 @api_view(['GET','POST'])
+@permission_classes([AllowAny])
 def blog_list_create(request):
     if request.method == 'GET':
         blogs = Blog.objects.all()
@@ -126,7 +128,8 @@ def blog_list_create(request):
 )
 
 @api_view(['GET','POST','PUT','PATCH'])
-def brand_detail(request, pk):
+@permission_classes([IsAuthenticated])
+def blog_detail(request, pk):
     blog = get_object_or_404(blog, pk=pk)
     if request.method == 'GET':
         serializer = BlogSerializer(blog)

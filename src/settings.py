@@ -129,7 +129,7 @@ SPECTACULAR_SETTINGS = {
 
 
 
-AUTH_USER_MODEL = 'user.CustomUser'
+AUTH_USER_MODEL = 'users.CustomUser'
 
 # JWT Authentication
 REST_FRAMEWORK = {
