@@ -127,22 +127,33 @@ def blog_list_create(request):
     },
 )
 
-@api_view(['GET','POST','PUT','PATCH'])
+@api_view(['GET','PUT','PATCH','DELETE'])
 @permission_classes([IsAuthenticated])
 def blog_detail(request, pk):
-    blog = get_object_or_404(blog, pk=pk)
+    blog = get_object_or_404(Blog, pk=pk)
+    
     if request.method == 'GET':
         serializer = BlogSerializer(blog)
         return Response(serializer.data)
-    elif request.data == ['PUT','PATCH']:
+    
+    elif request.method in ['PUT','PATCH']:
         if request.method == 'PATCH':
-            serializer = BlogSerializer(blog, data=request.data, partial=True)
+            serializer = BlogSerializer(
+                blog,
+                data=request.data,
+                partial=True
+                )
         else: 
-            serializer = BlogSerializer(blog, data=request.data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data)
+            serializer = BlogSerializer(
+                blog,
+                data=request.data
+                )
+            
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+    
     elif request.method == 'DELETE':
         blog.delete()
-        return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
+        return Response({'message':'Blog Deleted Succesfully.'},status=status.HTTP_204_NO_CONTENT)
     
