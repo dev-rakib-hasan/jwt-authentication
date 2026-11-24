@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import CustomUser
+from .models import CustomUser, Blog
+
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -22,6 +23,27 @@ class LoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['email', 'password']
+ 
+ 
+ 
+class BlogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Blog
+        fields = [
+            'id',
+            'title',
+            'slug',
+            'description',
+            'created_at',
+            'updated_at'
+        ]
+        read_only_fields = [
+            'id', 
+            'slug',
+            'created_at',
+            'updated_at',
+        ]
+
         
 
 # from rest_framework import serializers
