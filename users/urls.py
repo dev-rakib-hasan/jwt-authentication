@@ -10,4 +10,5 @@ urlpatterns = [
     path('blog_detail/<int:pk>/', views.blog_detail, name='blog_detail'),
     #Blog Like or Comment URLs
     path('blog_like/<int:pk>/', views.blog_like, name='blog_like'),
+    path('blog_comment<int:pk>/', views.blog_comment, name='blog_comment'),
 ]

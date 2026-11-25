@@ -211,3 +211,54 @@ def blog_like(request, pk):
         {'message':'you have not like this blog.'},
         status=status.HTTP_400_BAD_REQUEST
     )
+
+@extend_schema(
+    tags=['Comment'],
+    summary='Retrieve, Create or Delete Blog Comments',
+    request=CommentSerializer,
+    responses={
+        200: OpenApiResponse(description='Success'),
+        201: CommentSerializer,
+        400: OpenApiResponse(description='Validation Error'),
+        401: OpenApiResponse(description='Authentication Required'),
+        404: OpenApiResponse(description='Comment or Blog Not Found')
+    }
+) 
+    
+@api_view(['GET','POST'])
+@permission_classes([AllowAny])
+def blog_comment(request, pk):
+    blog = get_object_or_404(Blog, pk=pk)
+    
+    if request.method == 'GET':
+        comments = Comment.objects.filter(blog=blog)
+        serializer = CommentSerializer(
+            Comment,
+            many=True
+        )
+        return Response(serializer.data)
+    if not request.user.is_authenticated:
+        return Response(
+            {'message':'Authentication Required'},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    elif request.method == 'POST':
+        serializer = CommentSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=request.user, blog=blog)
+    
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED
+        )
+    elif request.method == 'DELETE':
+        comments = get_object_or_404(
+            Comment,
+            id = request.data.get('comment_id'),
+            blog = blog,
+            user = request.user
+        )
+        return Response(
+            {'message':'Comment Deleted Successfully.'},
+            status=status.HTTP_200_OK
+        )
