@@ -49,3 +49,27 @@ class Blog(models.Model):
         
     def __str__(self):
         return self.title
+    
+    
+class Like(models.Model):
+    user = models.models.ForeignKey(
+        AbstractUser,
+        on_delete=models.CASCADE,
+        related_name = 'likes'
+    )
+    blog = models.ForeignKey(
+        Blog,
+        on_delete= models.CASCADE,
+        related_name='likes'   
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields = ['user','blog'],
+                name = 'unique_user_blo_like'
+            )
+        ]
+    def __str__(self):
+        return f'{self.user.username}-{self.blog.title}'
