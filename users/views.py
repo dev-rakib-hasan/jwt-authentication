@@ -5,7 +5,11 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
-from .models import Blog
+from .models import(
+    Blog,
+    Like,
+    Comment,
+)
 from drf_spectacular.utils import (
     extend_schema,
     OpenApiRequest,
@@ -15,7 +19,9 @@ from drf_spectacular.utils import (
 from .serializers import(
     RegisterSerializer,
     LoginSerializer,
-    BlogSerializer
+    BlogSerializer,
+    LikeSerializer,
+    CommentSerializer,
 )
 # Create your views here.
 @extend_schema(
@@ -157,3 +163,51 @@ def blog_detail(request, pk):
         blog.delete()
         return Response({'message':'Blog Deleted Succesfully.'},status=status.HTTP_204_NO_CONTENT)
     
+#===================
+# Like Comment API
+#===================
+
+extend_schema(
+    tags=['Like'],
+    summary='Like or Unlike Blog',
+    request=LikeSerializer,
+    responses={
+        201:OpenApiResponse(description='Liked Succesfully.'),
+        200:OpenApiResponse(description='Success.'),
+        400:OpenApiResponse(description='Bad Request'),
+        404:OpenApiResponse(description='Not Found.')
+    }
+)
+@api_view(['POST','DELETE'])
+@permission_classes([IsAuthenticated])
+def blog_like(request, pk):
+    blog = get_object_or_404(Blog, pk=pk)
+    
+    if request.method == 'POST':
+        like, created = Like.objects.get_or_create(
+            user = request.user,
+            blog = blog
+        )
+        if created:
+            return Response(
+                {'message': 'Liked Successfully.'},
+                status=status.HTTP_201_CREATED
+            )
+        return Response(
+            {'message':'Already Liked.'},
+            status=status.HTTP_200_OK
+        )
+    like = Like.objects.filter(
+        user = request.user,
+        blog = blog
+    )
+    if like.exists():
+        like.delete()
+        return Response(
+            {'message':'Unliked Successfully.'},
+            status=status.HTTP_200_OK
+        )
+    return Response(
+        {'message':'you have not like this blog.'},
+        status=status.HTTP_400_BAD_REQUEST
+    )

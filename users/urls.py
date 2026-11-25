@@ -8,4 +8,6 @@ urlpatterns = [
     # Blog API URLs
     path('blog_list_create/', views.blog_list_create, name='blog_list_create'),
     path('blog_detail/<int:pk>/', views.blog_detail, name='blog_detail'),
+    #Blog Like or Comment URLs
+    path('blog_like/<int:pk>/', views.blog_like, name='blog_like'),
 ]
