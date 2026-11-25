@@ -3,6 +3,7 @@ from .models import(
     CustomUser,
     Blog,
     Like,
+    Comment
 )
 
 
@@ -70,4 +71,25 @@ class LikeSerializer(serializers.ModelSerializer):
             'created_at'
         ]
 
-      
+class CommentSerializer(serializers.ModelSerializer):
+    
+    username = serializers.CharField(
+        source = 'user.userrname',
+        read_only = True
+    )
+    class Meta:
+        model = Comment
+        fields = [
+            'id',
+            'user',
+            'username',
+            'blog',
+            'content',
+            'created_at',
+            'updated_at'   
+        ]
+        read_only_fields=[
+            'id',
+            'username',
+            'created_at'
+        ]
