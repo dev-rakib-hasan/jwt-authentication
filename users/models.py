@@ -52,7 +52,7 @@ class Blog(models.Model):
     
     
 class Like(models.Model):
-    user = models.models.ForeignKey(
+    user = models.ForeignKey(
         AbstractUser,
         on_delete=models.CASCADE,
         related_name = 'likes'
