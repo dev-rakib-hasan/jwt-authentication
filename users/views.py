@@ -116,6 +116,12 @@ def blog_list_create(request):
             {'message':'Authentication Required'},
             status=status.HTTP_401_UNAUTHORIZED
         )
+    if request.user.role not in ['admin','author']:
+        return Response(
+            {'message':'Only Admin and Author can create blogs'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+        
     serializer = BlogSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     serializer.save(user=request.user)
@@ -136,16 +142,26 @@ def blog_list_create(request):
 )
 
 @api_view(['GET','PUT','PATCH','DELETE'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def blog_detail(request, pk):
     blog = get_object_or_404(Blog, pk=pk)
     
     if request.method == 'GET':
         serializer = BlogSerializer(blog)
         return Response(serializer.data)
-    
+    # new code
     elif request.method in ['PUT','PATCH']:
-        if request.method == 'PATCH'
+        if request.user.role == 'admin':
+            pass
+        elif request.user.role == 'author' and blog.user == request.user:
+            pass
+        else:
+            return Response(
+                {'message':'You are not allowed to edit this blog'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        if request.method == 'PATCH':
             serializer = BlogSerializer(
                 blog,
                 data=request.data,
@@ -162,8 +178,18 @@ def blog_detail(request, pk):
         return Response(serializer.data)
     
     elif request.method == 'DELETE':
+      # new code
+        if request.user.role != 'admin':
+            return Response(
+                {'message':'Only Admin Can delete Blogs.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
         blog.delete()
-        return Response({'message':'Blog Deleted Succesfully.'},status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {'message':'Blog Deleted Succesfully.'},
+            status=status.HTTP_204_NO_CONTENT
+        )
     
 #===================
 # Like Comment API
