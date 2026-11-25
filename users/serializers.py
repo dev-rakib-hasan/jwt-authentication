@@ -32,12 +32,23 @@ class LoginSerializer(serializers.ModelSerializer):
  
  
 class BlogSerializer(serializers.ModelSerializer):
+    
+    like_count = serializers.IntegerField(
+        source = 'likes.count',
+        read_only=True
+    )
+    comment_count = serializers.IntegerField(
+        source ='comments.count',
+        read_only = True
+    )
     class Meta:
         model = Blog
         fields = [
             'id',
             'title',
             'slug',
+            'like_count',
+            'comment_count',
             'description',
             'created_at',
             'updated_at'
@@ -45,6 +56,8 @@ class BlogSerializer(serializers.ModelSerializer):
         read_only_fields = [
             'id', 
             'slug',
+            'like_count',
+            'comment_count',
             'created_at',
             'updated_at',
         ]
@@ -63,7 +76,7 @@ class LikeSerializer(serializers.ModelSerializer):
             'id',
             'username',
             'blog',
-            'creaated_at'
+            'created_at'
         ]
         read_only_fields=[
             'id',

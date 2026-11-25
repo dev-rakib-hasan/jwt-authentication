@@ -1,6 +1,9 @@
 from django.db import models
+from django.conf import settings
 from django.utils.text import slugify
-from django.contrib.auth.models import AbstractUser
+from .managers import CustomUserManager
+
+from django.contrib.auth.models import AbstractBaseUser,PermissionsMixin
 
 def generate_unique_slug(instance, value):
     base_slug = slugify(value)
@@ -22,12 +25,18 @@ def generate_unique_slug(instance, value):
     return slug
 
 
-class CustomUser(AbstractUser):
+class CustomUser(AbstractBaseUser, PermissionsMixin):
+    username = models.CharField(max_length=150)
     email = models.EmailField(unique=True)
-    
+
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+
+    objects = CustomUserManager()
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
-    
+
     def __str__(self):
         return self.username
     
@@ -53,7 +62,7 @@ class Blog(models.Model):
     
 class Like(models.Model):
     user = models.ForeignKey(
-        AbstractUser,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name = 'likes'
     )
@@ -76,7 +85,7 @@ class Like(models.Model):
     
 class Comment(models.Model):
     user = models.ForeignKey(
-        AbstractUser,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='comments'
     )
@@ -89,12 +98,6 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-            fields =['user','blog'],
-            name = 'unique_user_blog_like'
-        )
-    ]
+
     def __str__(self):
         return f'{self.user.username}-{self.blog.title}'
