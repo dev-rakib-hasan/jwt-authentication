@@ -32,6 +32,7 @@ from .serializers import(
 )
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def register(request):
     
     serializer = RegisterSerializer(data=request.data)
@@ -62,6 +63,7 @@ def register(request):
 )
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def login(request):
     
     serializer = LoginSerializer(data=request.data)
@@ -143,7 +145,7 @@ def blog_detail(request, pk):
         return Response(serializer.data)
     
     elif request.method in ['PUT','PATCH']:
-        if request.method == 'PATCH':
+        if request.method == 'PATCH'
             serializer = BlogSerializer(
                 blog,
                 data=request.data,

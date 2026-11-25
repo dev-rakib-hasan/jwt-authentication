@@ -26,8 +26,21 @@ def generate_unique_slug(instance, value):
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
+    
+    ROLE_CHOICES = (
+        ('admin', 'Admin'),
+        ('author', 'Author'),
+        ('user', 'User'),
+    )
+      
     username = models.CharField(max_length=150)
     email = models.EmailField(unique=True)
+    
+    role = models.CharField(
+        max_length=10,
+        choices=ROLE_CHOICES,
+        default='user'
+    )
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
