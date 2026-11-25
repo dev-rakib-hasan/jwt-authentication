@@ -1,4 +1,5 @@
 from rest_framework import status
+from .serializers import LoginResponseSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -9,6 +10,7 @@ from .models import(
     Blog,
     Like,
     Comment,
+    
 )
 from drf_spectacular.utils import (
     extend_schema,
@@ -22,6 +24,7 @@ from .serializers import(
     BlogSerializer,
     LikeSerializer,
     CommentSerializer,
+    
 )
 # Create your views here.
 @extend_schema(
@@ -52,13 +55,12 @@ def register(request):
     
 @extend_schema(
     tags=['Login'],
-    summary="Log in a new user.",
+    summary="Log in a user.",
     request=LoginSerializer,
     responses={
-        200:LoginSerializer,
-        201:OpenApiResponse(description='created'),
-        400:OpenApiResponse(description='Bad Request.'),
-        401:OpenApiResponse(description='Unauthorized.')
+        200: LoginResponseSerializer,
+        400: OpenApiResponse(description='Bad Request'),
+        401: OpenApiResponse(description='Unauthorized')
     }
 )
 
@@ -81,6 +83,8 @@ def login(request):
 
          return Response({
                 'message': 'Login successful',
+                'role': user.role,
+                'username': user.username,
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
         })
@@ -310,3 +314,4 @@ def blog_comment(request, pk):
             {'message':'Comment Deleted Successfully.'},
             status=status.HTTP_200_OK
         )
+        

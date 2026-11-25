@@ -28,6 +28,13 @@ class LoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['email', 'password']
+        
+class LoginResponseSerializer(serializers.Serializer):
+    message = serializers.CharField()
+    role = serializers.CharField()
+    username = serializers.CharField()
+    refresh = serializers.CharField()
+    access = serializers.CharField()
  
  
  
@@ -108,3 +115,4 @@ class CommentSerializer(serializers.ModelSerializer):
             'username',
             'created_at'
         ]
+        
