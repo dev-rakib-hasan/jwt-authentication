@@ -116,7 +116,7 @@ def blog_list_create(request):
         )
     serializer = BlogSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    serializer.save()
+    serializer.save(user=request.user)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -167,7 +167,7 @@ def blog_detail(request, pk):
 # Like Comment API
 #===================
 
-extend_schema(
+@extend_schema(
     tags=['Like'],
     summary='Like or Unlike Blog',
     request=LikeSerializer,
@@ -225,7 +225,7 @@ def blog_like(request, pk):
     }
 ) 
     
-@api_view(['GET','POST'])
+@api_view(['GET','POST','PATCH','DELETE'])
 @permission_classes([AllowAny])
 def blog_comment(request, pk):
     blog = get_object_or_404(Blog, pk=pk)
@@ -233,7 +233,7 @@ def blog_comment(request, pk):
     if request.method == 'GET':
         comments = Comment.objects.filter(blog=blog)
         serializer = CommentSerializer(
-            Comment,
+            comments,
             many=True
         )
         return Response(serializer.data)
@@ -251,6 +251,25 @@ def blog_comment(request, pk):
             serializer.data,
             status=status.HTTP_201_CREATED
         )
+    elif request.method == 'PATCH':
+        comment = get_object_or_404(
+            Comment,
+            id=request.data.get('comment_id'),
+            blog = blog,
+            user=request.user     
+        )
+        serializer = CommentSerializer(
+            comment,
+            data=request.data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK
+        )
+        
     elif request.method == 'DELETE':
         comments = get_object_or_404(
             Comment,
@@ -258,6 +277,7 @@ def blog_comment(request, pk):
             blog = blog,
             user = request.user
         )
+        comment.delete()
         return Response(
             {'message':'Comment Deleted Successfully.'},
             status=status.HTTP_200_OK

@@ -47,6 +47,7 @@ class BlogSerializer(serializers.ModelSerializer):
             'id',
             'title',
             'slug',
+            'user',
             'like_count',
             'comment_count',
             'description',
@@ -56,6 +57,7 @@ class BlogSerializer(serializers.ModelSerializer):
         read_only_fields = [
             'id', 
             'slug',
+            'user',
             'like_count',
             'comment_count',
             'created_at',
